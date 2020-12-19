@@ -1,2 +1,2 @@
-# powa - A password manager app for android
+# Powa - A password manager app for android
 Creative Computing Year 3 - Mobile Computing::Android App C.A 1
