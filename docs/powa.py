@@ -1,5 +1,6 @@
 def main():
     print("Powa testing login logic\n")
+    #These are not real logins :)
     logins = (
         Login(1, "My Google password", "google", "https://google.ie", "testpassword", "testusername@gmail.com"),
         Login(2, "My IADT password", "iadt", "https://iadt.ie", "iadtpassword123", "jonathanberkeley1999@gmail.com"),
