@@ -13,12 +13,15 @@ import com.powapp.powa.data.DataEntity
 import com.powapp.powa.databinding.ListItemBinding
 import java.lang.Exception
 
-class LoginListAdapter(private val loginList: List<DataEntity>):
+class LoginListAdapter(
+    private val loginList: List<DataEntity>,
+    private val listener: ListItemListener
+) :
     //Calls constructor for inner class
     RecyclerView.Adapter<LoginListAdapter.ViewHolder>() {
 
     //Gets a reference to the root view of the list_view.xml file
-    inner class ViewHolder(itemView: View):
+    inner class ViewHolder(itemView: View) :
         RecyclerView.ViewHolder(itemView) {
         val binding = ListItemBinding.bind(itemView)
     }
@@ -36,17 +39,19 @@ class LoginListAdapter(private val loginList: List<DataEntity>):
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val login = loginList[position]
         val baseFaviconUrl: String = "https://www.google.com/s2/favicons?sz=128&domain_url="
-        with (holder.binding) {
+        with(holder.binding) {
             //Set the data for the list_item layout
             loginTitle.text = login.title
             loginTarget.text = login.target_name
+
+            //Get live favicons from site using Google's favicon generating API
             try {
                 Glide.with(loginFavicon.context)
                     .load(baseFaviconUrl + loginTarget.text)
                     .apply(
                         RequestOptions().override(150, 150)
-                            .placeholder(R.drawable.ic_launcher_background)
-                            .error(R.drawable.ic_launcher_foreground)
+                            .placeholder(R.drawable.loading)
+                            .error(R.drawable.unfound)
                     )
                     .dontAnimate()
                     .into(loginFavicon)
@@ -54,7 +59,16 @@ class LoginListAdapter(private val loginList: List<DataEntity>):
                 Log.e("Glide exception", "$ex")
             }
 
+            //For listening for user clicks on the data in recycler view
+            root.setOnClickListener {
+                listener.onItemClick(login.id)
+            }
         }
+    }
+
+    interface ListItemListener {
+        //Implemented by the LandingFragment
+        fun onItemClick(itemId: Int)
     }
 
     override fun getItemCount() = loginList.size

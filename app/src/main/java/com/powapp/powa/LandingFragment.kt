@@ -12,7 +12,8 @@ import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.powapp.powa.databinding.LandingFragmentBinding
 
-class LandingFragment : Fragment() {
+class LandingFragment : Fragment(),
+    LoginListAdapter.ListItemListener {
 
     private lateinit var viewModel: LandingViewModel
     private lateinit var binding: LandingFragmentBinding
@@ -34,12 +35,17 @@ class LandingFragment : Fragment() {
         }
 
         viewModel.loginList.observe(viewLifecycleOwner, Observer {
-            Log.i("dataLogging", it.toString())
-            adapter = LoginListAdapter(it)
+            Log.i("dataLogging!", it.toString())
+            adapter = LoginListAdapter(it, this@LandingFragment)
             binding.recyclerView.adapter = adapter
             binding.recyclerView.layoutManager = LinearLayoutManager(activity)
         })
         return binding.root
+    }
+
+    //LoginListAdapter interface implementation, handles clicks recycler view clicks
+    override fun onItemClick(itemId: Int) {
+        Log.i("itemClick", "for id $itemId")
     }
 
 }
