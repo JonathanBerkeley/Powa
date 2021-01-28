@@ -2,4 +2,6 @@
     <string name="app_name">Powa</string>
     <string name="website_favicon">Website favicon</string>
     <string name="add_sample_data">Add sample data</string>
+    <string name="delete_all_listings">Delete all listings</string>
+    <string name="add_login_entry">Add login entry</string>
 </resources>

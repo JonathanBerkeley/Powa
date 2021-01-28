@@ -5,10 +5,16 @@
     android:layout_height="match_parent"
     tools:context=".ViewLoginFragment">
 
-    <TextView
+    <EditText
         android:id="@+id/testText"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:text="Hello"
+        android:layout_margin="16dp"
+        android:hint="Hello"
+        android:inputType="textCapSentences|textMultiLine"
+        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+        tools:ignore="Autofill"
         tools:text="Hello" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

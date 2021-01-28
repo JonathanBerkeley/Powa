@@ -31,4 +31,14 @@ class LandingViewModel(app: Application) : AndroidViewModel(app) {
             }
         }
     }
+
+    fun deleteAllListings() {
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+                //Delete all entries in the database and reset the primary key
+                database?.loginDao()?.emptyDatabase()
+                database?.loginDao()?.resetDatabasePK()
+            }
+        }
+    }
 }

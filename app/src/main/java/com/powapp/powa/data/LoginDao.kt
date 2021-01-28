@@ -1,13 +1,11 @@
 package com.powapp.powa.data
 
 import androidx.lifecycle.LiveData
-import androidx.room.Dao
-import androidx.room.Insert
-import androidx.room.OnConflictStrategy
-import androidx.room.Query
+import androidx.room.*
 
 @Dao
 interface LoginDao {
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertLogin(login: DataEntity)
 
@@ -23,4 +21,13 @@ interface LoginDao {
 
     @Query("SELECT COUNT(*) FROM logins")
     fun getCount(): Int
+
+    @Query("DELETE FROM logins WHERE 1 = 1")
+    fun emptyDatabase()
+
+    @Query("DELETE FROM sqlite_sequence WHERE name = 'logins'")
+    fun resetDatabasePK()
+
+    @Delete
+    fun deleteLoginData(login: DataEntity)
 }

@@ -28,6 +28,8 @@ class LandingFragment : Fragment(),
         (activity as AppCompatActivity)
             .supportActionBar?.setDisplayHomeAsUpEnabled(false)
 
+        requireActivity().title = "Accounts"
+
         //Enables the options menu for this fragment
         setHasOptionsMenu(true)
 
@@ -49,12 +51,19 @@ class LandingFragment : Fragment(),
             binding.recyclerView.adapter = adapter
             binding.recyclerView.layoutManager = LinearLayoutManager(activity)
         })
+
+        binding.floatingActionButton.setOnClickListener {
+            onItemClick(NEW_ENTRY_ID)
+        }
         return binding.root
     }
 
     //Inflates the options menu layout
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.quick_menu, menu)
+        if (DEV_MODE)
+            inflater.inflate(R.menu.quick_menu_dev, menu)
+        else
+            inflater.inflate(R.menu.quick_menu, menu)
         super.onCreateOptionsMenu(menu, inflater)
     }
 
@@ -62,12 +71,20 @@ class LandingFragment : Fragment(),
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.action_sample_data -> addSampleData()
+            R.id.action_delete_all -> deleteAllListings()
             else -> return super.onOptionsItemSelected(item)
         }
     }
 
+    //Development function for adding sample data for testing
     private fun addSampleData(): Boolean {
         viewModel.addSampleData()
+        return true
+    }
+
+    //Development function for deleting all data in the database
+    private fun deleteAllListings(): Boolean {
+        viewModel.deleteAllListings()
         return true
     }
 
