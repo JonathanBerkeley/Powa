@@ -4,8 +4,6 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
-import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
@@ -46,14 +44,17 @@ class LoginListAdapter(
 
             //Get live favicons from site using Google's favicon generating API
             try {
+                //Alternative loading method:
+                //loginFavicon.setImageResource(R.drawable.loading)
                 Glide.with(loginFavicon.context)
                     .load(baseFaviconUrl + loginTarget.text)
+                    //Sets the icon to loading animation while
+                    //waiting for the app to load the favicon or error out
+                    .thumbnail(Glide.with(loginFavicon.context).load(R.drawable.loading))
                     .apply(
                         RequestOptions().override(150, 150)
-                            .placeholder(R.drawable.loading)
                             .error(R.drawable.unfound)
                     )
-                    .dontAnimate()
                     .into(loginFavicon)
             } catch (ex: Exception) {
                 Log.e("Glide exception", "$ex")

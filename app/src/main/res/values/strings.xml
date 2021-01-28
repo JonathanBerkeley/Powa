@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">Powa</string>
     <string name="website_favicon">Website favicon</string>
+    <string name="add_sample_data">Add sample data</string>
 </resources>

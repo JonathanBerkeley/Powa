@@ -2,10 +2,7 @@ package com.powapp.powa
 
 import android.os.Bundle
 import android.util.Log
-import android.view.LayoutInflater
-import android.view.MenuItem
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
@@ -31,6 +28,9 @@ class LandingFragment : Fragment(),
         (activity as AppCompatActivity)
             .supportActionBar?.setDisplayHomeAsUpEnabled(false)
 
+        //Enables the options menu for this fragment
+        setHasOptionsMenu(true)
+
         //Inflates the fragment and returns reference to binding variable
         binding = LandingFragmentBinding.inflate(inflater, container, false)
         viewModel = ViewModelProvider(this).get(LandingViewModel::class.java)
@@ -43,13 +43,32 @@ class LandingFragment : Fragment(),
             addItemDecoration(divider)
         }
 
-        viewModel.loginList.observe(viewLifecycleOwner, Observer {
+        viewModel.loginList?.observe(viewLifecycleOwner, Observer {
             Log.i("dataLogging!", it.toString())
             adapter = LoginListAdapter(it, this@LandingFragment)
             binding.recyclerView.adapter = adapter
             binding.recyclerView.layoutManager = LinearLayoutManager(activity)
         })
         return binding.root
+    }
+
+    //Inflates the options menu layout
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.quick_menu, menu)
+        super.onCreateOptionsMenu(menu, inflater)
+    }
+
+    //Handles clicks on the options menu
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.action_sample_data -> addSampleData()
+            else -> return super.onOptionsItemSelected(item)
+        }
+    }
+
+    private fun addSampleData(): Boolean {
+        viewModel.addSampleData()
+        return true
     }
 
     //LoginListAdapter interface implementation, handles clicks recycler view clicks
