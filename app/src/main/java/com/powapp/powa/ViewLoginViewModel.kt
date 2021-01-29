@@ -20,11 +20,10 @@ class ViewLoginViewModel(app: Application) : AndroidViewModel(app) {
             withContext(Dispatchers.IO) {
                 //Gets the login if exists
                 val login =
-                    if (loginId != NEW_ENTRY_ID) {
+                    if (loginId != NEW_ENTRY_ID)
                         database?.loginDao()?.getLoginById(loginId)
-                    } else {
+                    else
                         DataEntity()
-                    }
                 //Posts data from background thread
                 currentLoginData.postValue(login)
             }
@@ -34,10 +33,10 @@ class ViewLoginViewModel(app: Application) : AndroidViewModel(app) {
     fun updateLoginData() {
         currentLoginData.value?.let {
             it.title = it.title.trim()
+
             //Error prevention
-            if (it.id == NEW_ENTRY_ID && it.title.isEmpty()) {
+            if (it.id == NEW_ENTRY_ID && it.title.isEmpty())
                 return
-            }
 
             //Runs background thread to perform update
             viewModelScope.launch {
@@ -49,7 +48,6 @@ class ViewLoginViewModel(app: Application) : AndroidViewModel(app) {
                     }
                 }
             }
-
         }
     }
 }

@@ -36,12 +36,33 @@ class LoginListAdapter(
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val login = loginList[position]
-        val baseFaviconUrl: String = "https://www.google.com/s2/favicons?sz=128&domain_url="
         with(holder.binding) {
             //Set the data for the list_item layout
             loginTitle.text = login.title
             loginTarget.text = login.target_name
 
+            generateFavicon(this)
+
+            //For listening for user clicks on the data in recycler view
+            root.setOnClickListener {
+                listener.onItemClick(login.id)
+            }
+        }
+    }
+
+    interface ListItemListener {
+        //Implemented by the LandingFragment
+        fun onItemClick(itemId: Int)
+    }
+
+    override fun getItemCount() = loginList.size
+
+
+    //Function for generating the favicons for the account logins
+    private fun generateFavicon(itemBinding: ListItemBinding) {
+        //Google's icon getting API
+        val baseFaviconUrl: String = "https://www.google.com/s2/favicons?sz=128&domain_url="
+        with (itemBinding) {
             //Get live favicons from site using Google's favicon generating API
             try {
                 //Alternative loading method:
@@ -59,18 +80,6 @@ class LoginListAdapter(
             } catch (ex: Exception) {
                 Log.e("Glide exception", "$ex")
             }
-
-            //For listening for user clicks on the data in recycler view
-            root.setOnClickListener {
-                listener.onItemClick(login.id)
-            }
         }
     }
-
-    interface ListItemListener {
-        //Implemented by the LandingFragment
-        fun onItemClick(itemId: Int)
-    }
-
-    override fun getItemCount() = loginList.size
 }

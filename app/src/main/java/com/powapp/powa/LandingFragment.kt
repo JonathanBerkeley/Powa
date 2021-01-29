@@ -52,6 +52,7 @@ class LandingFragment : Fragment(),
             binding.recyclerView.layoutManager = LinearLayoutManager(activity)
         })
 
+        //Adds click listener to floating action button for adding new account logins
         binding.floatingActionButton.setOnClickListener {
             onItemClick(NEW_ENTRY_ID)
         }

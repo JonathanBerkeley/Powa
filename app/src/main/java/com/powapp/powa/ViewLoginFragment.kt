@@ -3,6 +3,7 @@ package com.powapp.powa
 import android.app.Activity
 import androidx.lifecycle.ViewModelProvider
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.MenuItem
@@ -10,11 +11,15 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
+import android.widget.ToggleButton
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.isVisible
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
+import com.bumptech.glide.Glide
+import com.bumptech.glide.request.RequestOptions
 import com.powapp.powa.databinding.ViewLoginFragmentBinding
 
 class ViewLoginFragment : Fragment() {
@@ -38,14 +43,24 @@ class ViewLoginFragment : Fragment() {
         //Gives the icon an options menu
         setHasOptionsMenu(true)
 
-
-
         //Creates ViewLoginViewModel file as a ViewModel that can be referenced further on
         viewModel = ViewModelProvider(this).get(ViewLoginViewModel::class.java)
 
         //Inflates the fragment with the data passed in from the LandingFragment
         binding = ViewLoginFragmentBinding.inflate(inflater, container, false)
-        binding.testText.setText("")
+        binding.editTitleText.setText("")
+
+        //Load favicon for this site
+        Glide.with(binding.loginFaviconView.context)
+            .load("https://www.google.com/s2/favicons?sz=128&domain_url=" + binding.editTitleText.text)
+            //Sets the icon to loading animation while
+            //waiting for the app to load the favicon or error out
+            .thumbnail(Glide.with(binding.loginFaviconView.context).load(R.drawable.loading))
+            .apply(
+                RequestOptions().override(150, 150)
+                    .error(R.drawable.unfound)
+            )
+            .into(binding.loginFaviconView)
 
         //Uses the same backward navigation for the back button or hand gestures, so that navigation back with
         //the SystemUI is handled the same way
@@ -61,24 +76,43 @@ class ViewLoginFragment : Fragment() {
         //Sets data to object data passed in from users click
         //and maintains application data through device updates such as rotation
         viewModel.currentLoginData.observe(viewLifecycleOwner, Observer {
-            requireActivity().title = it.title
+            //Controls app screen heading
+            requireActivity().title =
+                if (it.title == "")
+                    "New account"
+                else
+                    it.title
 
             val savedLoginData = savedInstanceState?.getString(EDIT_TEXT_KEY)
             val cursorPosition = savedInstanceState?.getInt(CURSOR_POSITION_KEY) ?: 0
-            binding.testText.setText(savedLoginData ?: it.title)
-            binding.testText.setSelection(cursorPosition)
+            binding.editTitleText.setText(savedLoginData ?: it.title)
+            binding.editTitleText.setSelection(cursorPosition)
         })
         viewModel.getLoginById(args.loginId)
+
+        //Custom password visibility toggle - hides input on button click
+        binding.toggleButton.setButtonDrawable(R.drawable.ic_not_visible)
+        binding.toggleButton.setOnCheckedChangeListener { _, isChecked ->
+            if (isChecked) {
+                Log.i("passwordVisibilityClick", "enabled - ${binding.editPasswordText.inputType}")
+                binding.toggleButton.setButtonDrawable(R.drawable.ic_visible)
+                binding.editPasswordText.inputType = 524433
+            } else {
+                Log.i("passwordVisibilityClick", "disabled - ${binding.editPasswordText.inputType}")
+                binding.toggleButton.setButtonDrawable(R.drawable.ic_not_visible)
+                binding.editPasswordText.inputType = 524417
+            }
+        }
 
         return binding.root
     }
 
+    //Handles the navigate back button on the view account screen
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             android.R.id.home -> saveAndNavigateBack()
             else -> super.onOptionsItemSelected(item)
         }
-
     }
 
     //Saves what was changed and navigates backwards
@@ -92,7 +126,7 @@ class ViewLoginFragment : Fragment() {
         Toast.makeText(context, "Saved account", Toast.LENGTH_SHORT).show()
 
         //Updating the data
-        viewModel.currentLoginData.value?.title = binding.testText.text.toString()
+        viewModel.currentLoginData.value?.title = binding.editTitleText.text.toString()
         viewModel.updateLoginData()
 
         //Navigating backwards
@@ -101,7 +135,7 @@ class ViewLoginFragment : Fragment() {
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
-        with (binding.testText) {
+        with(binding.editTitleText) {
             outState.putString(EDIT_TEXT_KEY, text.toString())
             outState.putInt(CURSOR_POSITION_KEY, selectionStart)
         }
