@@ -45,18 +45,6 @@ class ViewLoginFragment : Fragment() {
         binding = ViewLoginFragmentBinding.inflate(inflater, container, false)
         binding.editTitleText.setText("")
 
-        //Load favicon for this site
-        Glide.with(binding.loginFaviconView.context)
-            .load("https://www.google.com/s2/favicons?sz=128&domain_url=" + binding.editTitleText.text)
-            //Sets the icon to loading animation while
-            //waiting for the app to load the favicon or error out
-            .thumbnail(Glide.with(binding.loginFaviconView.context).load(R.drawable.loading))
-            .apply(
-                RequestOptions().override(150, 150)
-                    .error(R.drawable.unfound)
-            )
-            .into(binding.loginFaviconView)
-
         //Uses the same backward navigation for the back button or hand gestures, so that navigation back with
         //the SystemUI is handled the same way
         requireActivity().onBackPressedDispatcher.addCallback(
@@ -67,6 +55,10 @@ class ViewLoginFragment : Fragment() {
                 }
             }
         )
+
+        //Gets the data from the database
+        viewModel.injectLoginById(args.loginId)
+        viewModel.getLastSavedSite(args.loginId)
 
         //Sets data to object data passed in from users click
         //and maintains application data through device updates such as rotation
@@ -80,10 +72,37 @@ class ViewLoginFragment : Fragment() {
 
             val savedLoginData = savedInstanceState?.getString(EDIT_TEXT_KEY)
             val cursorPosition = savedInstanceState?.getInt(CURSOR_POSITION_KEY) ?: 0
-            binding.editTitleText.setText(savedLoginData ?: it.title)
-            binding.editTitleText.setSelection(cursorPosition)
+
+            //Inserts all the data into the form for viewing / editing
+            binding.run {
+                editTitleText.setText(savedLoginData ?: it.title)
+                editTargetText.setText(savedLoginData ?: it.target)
+                editTargetNameText.setText(savedLoginData ?: it.target_name)
+                editPasswordText.setText(savedLoginData ?: it.password)
+                editEmailText.setText(savedLoginData ?: it.username)
+
+                //Sets the cursor back to the position it was before view update
+                editTitleText.setSelection(cursorPosition)
+            }
         })
-        viewModel.getLoginById(args.loginId)
+
+        //Passing in icon data through the fragments using the database in a background thread
+        viewModel.savedSite.observe(viewLifecycleOwner, Observer {
+            viewModel.savedSite.value?.toString()?.let { it1 -> Log.i("iconPass", it1) }
+
+            //Load favicon for this site
+            Glide.with(binding.loginFaviconView.context)
+                .load("https://www.google.com/s2/favicons?sz=128&domain_url=" + viewModel.savedSite.value?.toString())
+                //Sets the icon to loading animation while
+                //waiting for the app to load the favicon or error out
+                .thumbnail(Glide.with(binding.loginFaviconView.context).load(R.drawable.loading))
+                .apply(
+                    RequestOptions().override(150, 150)
+                        .error(R.drawable.unfound)
+                )
+                .into(binding.loginFaviconView)
+        })
+
 
         //Custom password visibility toggle - hides input on button click
         binding.toggleButton.setButtonDrawable(R.drawable.ic_not_visible)
@@ -103,6 +122,7 @@ class ViewLoginFragment : Fragment() {
         binding.submitButton.setOnClickListener {
             saveAndNavigateBack()
         }
+
 
         return binding.root
     }
@@ -127,12 +147,27 @@ class ViewLoginFragment : Fragment() {
     private fun saveAndNavigateBack(): Boolean {
         collapseKeyboard()
 
-        //Toast to let user know the data has saved
-        Toast.makeText(context, "Saved account", Toast.LENGTH_SHORT).show()
-
         //Updating the data
         viewModel.currentLoginData.value?.title = binding.editTitleText.text.toString()
+        viewModel.currentLoginData.value?.run {
+            binding.run {
+                title = editTitleText.text.toString()
+                target = editTargetText.text.toString()
+                target_name = editTargetNameText.text.toString()
+                if (password == "")
+                    password = null
+
+                if (username == "")
+                    username = null
+
+                password = editPasswordText.text.toString()
+                username = editEmailText.text.toString()
+            }
+        }
         viewModel.updateLoginData()
+
+        //Toast to let user know the data has saved
+        Toast.makeText(context, "Saved account", Toast.LENGTH_SHORT).show()
 
         //Navigating backwards
         findNavController().navigateUp()

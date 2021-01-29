@@ -13,8 +13,10 @@ import kotlinx.coroutines.withContext
 class ViewLoginViewModel(app: Application) : AndroidViewModel(app) {
     private val database = InternalDatabase.getInstance(app)
     val currentLoginData = MutableLiveData<DataEntity>()
+    val savedSite = MutableLiveData<String>()
 
-    fun getLoginById(loginId: Int) {
+    //Injects the login to the form from the database by the ID
+    fun injectLoginById(loginId: Int) {
         //Run as coroutine (background thread)
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
@@ -30,12 +32,36 @@ class ViewLoginViewModel(app: Application) : AndroidViewModel(app) {
         }
     }
 
+    fun getLastSavedSite(loginId: Int) {
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+                 val site = database?.loginDao()?.getSavedSite(loginId)
+                //Posts the data from this background thread
+                savedSite.postValue(site)
+            }
+        }
+    }
+
+    //Updates the login data when the user is done editing
     fun updateLoginData() {
+
+        //Basic string sanitizing
         currentLoginData.value?.let {
-            it.title = it.title.trim()
+            it.run {
+                title = title.trim()
+
+                if (target.isEmpty()) {
+                    target = ""
+                }
+
+                target = target.trim()
+                target_name = target_name.trim()
+                password = password?.trim()
+                username = username?.trim()
+            }
 
             //Error prevention
-            if (it.id == NEW_ENTRY_ID && it.title.isEmpty())
+            if (it.id == NEW_ENTRY_ID && (it.title.isEmpty() || it.target_name.isEmpty()))
                 return
 
             //Runs background thread to perform update
