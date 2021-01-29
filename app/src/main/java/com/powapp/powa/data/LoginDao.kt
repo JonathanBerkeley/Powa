@@ -28,6 +28,9 @@ interface LoginDao {
     @Query("DELETE FROM sqlite_sequence WHERE name = 'logins'")
     fun resetDatabasePK()
 
+    @Query("DELETE FROM logins WHERE id = :id")
+    fun deleteLoginById(id: Int)
+
     @Delete
     fun deleteLoginData(login: DataEntity)
 }

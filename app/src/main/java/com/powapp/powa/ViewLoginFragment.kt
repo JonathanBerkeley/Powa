@@ -4,17 +4,12 @@ import android.app.Activity
 import androidx.lifecycle.ViewModelProvider
 import android.os.Bundle
 import android.util.Log
+import android.view.*
 import androidx.fragment.app.Fragment
-import android.view.LayoutInflater
-import android.view.MenuItem
-import android.view.View
-import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
-import android.widget.ToggleButton
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.isVisible
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
@@ -104,6 +99,11 @@ class ViewLoginFragment : Fragment() {
             }
         }
 
+        //Submit button click listener
+        binding.submitButton.setOnClickListener {
+            saveAndNavigateBack()
+        }
+
         return binding.root
     }
 
@@ -111,16 +111,21 @@ class ViewLoginFragment : Fragment() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             android.R.id.home -> saveAndNavigateBack()
+            R.id.delete_account -> deleteAccount()
             else -> super.onOptionsItemSelected(item)
         }
     }
 
+    //Delete the account currently being viewed
+    private fun deleteAccount(): Boolean {
+        viewModel.deleteLoginData(args.loginId)
+        discardAndNavigateBack()
+        return true
+    }
+
     //Saves what was changed and navigates backwards
     private fun saveAndNavigateBack(): Boolean {
-        //For collapsing the keyboard
-        val imm = requireActivity()
-            .getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
-        imm.hideSoftInputFromWindow(binding.root.windowToken, 0)
+        collapseKeyboard()
 
         //Toast to let user know the data has saved
         Toast.makeText(context, "Saved account", Toast.LENGTH_SHORT).show()
@@ -134,6 +139,13 @@ class ViewLoginFragment : Fragment() {
         return true
     }
 
+    //For navigating backwards without saving data
+    private fun discardAndNavigateBack(): Boolean {
+        collapseKeyboard()
+        findNavController().navigateUp()
+        return true
+    }
+
     override fun onSaveInstanceState(outState: Bundle) {
         with(binding.editTitleText) {
             outState.putString(EDIT_TEXT_KEY, text.toString())
@@ -142,4 +154,15 @@ class ViewLoginFragment : Fragment() {
         super.onSaveInstanceState(outState)
     }
 
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.edit_menu, menu)
+        super.onCreateOptionsMenu(menu, inflater)
+    }
+
+    private fun collapseKeyboard() {
+        //For collapsing the keyboard
+        val imm = requireActivity()
+            .getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
+        imm.hideSoftInputFromWindow(binding.root.windowToken, 0)
+    }
 }

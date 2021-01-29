@@ -10,4 +10,5 @@
     <string name="enter_password">Password</string>
     <string name="enter_website_url_required">Website Address <font color='#f5767a'>*</font></string>
     <string name="note">Note…</string>
+    <string name="delete_this_account">Delete this account</string>
 </resources>

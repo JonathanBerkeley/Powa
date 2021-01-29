@@ -50,4 +50,13 @@ class ViewLoginViewModel(app: Application) : AndroidViewModel(app) {
             }
         }
     }
+
+    //Function for deleting data from the database using a background thread
+    fun deleteLoginData(loginId: Int) {
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+                database?.loginDao()?.deleteLoginById(loginId)
+            }
+        }
+    }
 }
