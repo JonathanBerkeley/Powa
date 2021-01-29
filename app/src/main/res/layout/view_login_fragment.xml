@@ -8,7 +8,8 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:background="#FFFFFF">
 
         <pl.droidsonroids.gif.GifImageView
             android:id="@+id/loginFaviconView"
@@ -67,19 +68,19 @@
             tools:text="@string/enter_password" />
 
 
-
         <EditText
             android:id="@+id/editTargetNameText"
             android:layout_width="250dp"
             android:layout_height="50dp"
             android:layout_margin="16dp"
+            android:layout_marginTop="-10dp"
             android:hint="@string/enter_website_url_required"
             android:inputType="textWebEmailAddress"
             android:text=""
             android:textAppearance="@style/TextAppearance.AppCompat.Medium"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/editPasswordText"
+            app:layout_constraintTop_toBottomOf="@+id/generatePassword"
             tools:ignore="Autofill"
             tools:text="@string/enter_website_url_required" />
 
@@ -121,6 +122,22 @@
             app:layout_constraintEnd_toEndOf="@+id/editPasswordText"
             app:layout_constraintTop_toTopOf="@+id/editPasswordText"
             app:layout_constraintVertical_bias="0.0" />
+
+        <TextView
+            android:id="@+id/generatePassword"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:linksClickable="true"
+            android:text="@string/generate_password"
+            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+            android:textColor="#F553A5A9"
+            android:textSize="15sp"
+            app:layout_constraintBottom_toTopOf="@+id/editTargetNameText"
+            app:layout_constraintEnd_toEndOf="@+id/editPasswordText"
+            app:layout_constraintTop_toBottomOf="@+id/editPasswordText" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

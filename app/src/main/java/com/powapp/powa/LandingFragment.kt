@@ -1,8 +1,10 @@
 package com.powapp.powa
 
+import android.content.DialogInterface
 import android.os.Bundle
 import android.util.Log
 import android.view.*
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
@@ -85,7 +87,15 @@ class LandingFragment : Fragment(),
 
     //Development function for deleting all data in the database
     private fun deleteAllListings(): Boolean {
-        viewModel.deleteAllListings()
+        //Since this could cause a lot of problems if done accidentally, a confirmation box is added
+        val alertDialogBuilder = AlertDialog.Builder(binding.root.context)
+        alertDialogBuilder.setMessage("Are you sure you want to delete all accounts? (This cannot be undone)")
+        alertDialogBuilder.setTitle("Confirmation")
+        alertDialogBuilder.setPositiveButton("Yes") { _, _ ->
+            viewModel.deleteAllListings()
+        }
+        alertDialogBuilder.setNegativeButton("No", null)
+        alertDialogBuilder.show()
         return true
     }
 

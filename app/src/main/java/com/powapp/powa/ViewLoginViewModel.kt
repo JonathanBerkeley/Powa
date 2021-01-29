@@ -1,6 +1,7 @@
 package com.powapp.powa
 
 import android.app.Application
+import android.widget.Toast
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
@@ -35,7 +36,7 @@ class ViewLoginViewModel(app: Application) : AndroidViewModel(app) {
     fun getLastSavedSite(loginId: Int) {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
-                 val site = database?.loginDao()?.getSavedSite(loginId)
+                val site = database?.loginDao()?.getSavedSite(loginId)
                 //Posts the data from this background thread
                 savedSite.postValue(site)
             }
@@ -43,8 +44,7 @@ class ViewLoginViewModel(app: Application) : AndroidViewModel(app) {
     }
 
     //Updates the login data when the user is done editing
-    fun updateLoginData() {
-
+    fun updateLoginData(): Boolean {
         //Basic string sanitizing
         currentLoginData.value?.let {
             it.run {
@@ -62,12 +62,12 @@ class ViewLoginViewModel(app: Application) : AndroidViewModel(app) {
 
             //Error prevention
             if (it.id == NEW_ENTRY_ID && (it.title.isEmpty() || it.target_name.isEmpty()))
-                return
-
+                return false
             //Runs background thread to perform update
             viewModelScope.launch {
                 withContext(Dispatchers.IO) {
-                    if (it.title.isEmpty()) {
+                    //If the title or the website address is empty, delete the entry
+                    if (it.title.isEmpty() || it.target_name.isEmpty()) {
                         database?.loginDao()?.deleteLoginData(it)
                     } else {
                         database?.loginDao()?.insertLogin(it)
@@ -75,6 +75,7 @@ class ViewLoginViewModel(app: Application) : AndroidViewModel(app) {
                 }
             }
         }
+        return true
     }
 
     //Function for deleting data from the database using a background thread

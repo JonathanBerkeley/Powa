@@ -1,5 +1,6 @@
 package com.powapp.powa
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import androidx.lifecycle.ViewModelProvider
 import android.os.Bundle
@@ -16,6 +17,8 @@ import androidx.navigation.fragment.navArgs
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.powapp.powa.databinding.ViewLoginFragmentBinding
+import java.security.SecureRandom
+import java.util.*
 
 class ViewLoginFragment : Fragment() {
     private lateinit var viewModel: ViewLoginViewModel
@@ -110,10 +113,12 @@ class ViewLoginFragment : Fragment() {
             if (isChecked) {
                 Log.i("passwordVisibilityClick", "enabled - ${binding.editPasswordText.inputType}")
                 binding.toggleButton.setButtonDrawable(R.drawable.ic_visible)
+                //Sets the password visibiltiy to visible
                 binding.editPasswordText.inputType = 524433
             } else {
                 Log.i("passwordVisibilityClick", "disabled - ${binding.editPasswordText.inputType}")
                 binding.toggleButton.setButtonDrawable(R.drawable.ic_not_visible)
+                //Sets the password visibility to not visible (censored, e.g *******)
                 binding.editPasswordText.inputType = 524417
             }
         }
@@ -123,7 +128,14 @@ class ViewLoginFragment : Fragment() {
             saveAndNavigateBack()
         }
 
-
+        //Generate password functionality, click listener for button
+        binding.generatePassword.setOnClickListener {
+            binding.run {
+                editPasswordText.setText(generatePassword())
+                //Changes the text to offer generating new password
+                generatePassword.text = getString(R.string.generate_new_password)
+            }
+        }
         return binding.root
     }
 
@@ -164,10 +176,10 @@ class ViewLoginFragment : Fragment() {
                 username = editEmailText.text.toString()
             }
         }
-        viewModel.updateLoginData()
 
-        //Toast to let user know the data has saved
-        Toast.makeText(context, "Saved account", Toast.LENGTH_SHORT).show()
+        if (viewModel.updateLoginData())
+            //Toast to let user know the data has saved
+            Toast.makeText(context, "Saved account", Toast.LENGTH_SHORT).show()
 
         //Navigating backwards
         findNavController().navigateUp()
@@ -199,5 +211,45 @@ class ViewLoginFragment : Fragment() {
         val imm = requireActivity()
             .getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
         imm.hideSoftInputFromWindow(binding.root.windowToken, 0)
+    }
+
+    //Function to generate a new secure password using SecureRandom. Used for generating
+    //practically impossible to crack passwords
+    private fun generatePassword(): String {
+        val random: SecureRandom = SecureRandom()
+        val alphabetLower: String = "abcdefghijklmnopqrstuvwxyz"
+        val alphabetUpper: String = alphabetLower.toUpperCase(Locale.ROOT)
+        val numbers: String = "1234567890"
+        val symbols: String = "%!$&^@#*"
+
+        var generatedPassword: String = ""
+
+        //Generates the new random secure password. Password length between 12..15
+        repeat (random.nextInt(15 - 12) + 12) {
+            when (random.nextInt(5)) {
+                //Letter (biased for more chance)
+                0, 3, 4 -> {
+                    //Randomly decide on lowercase or uppercase character
+                    when (random.nextInt(2)) {
+                        0 -> {
+                            generatedPassword += alphabetLower[random.nextInt(alphabetLower.length)]
+                        }
+                        1 -> {
+                            generatedPassword += alphabetUpper[random.nextInt(alphabetUpper.length)]
+                        }
+                    }
+                }
+                //Number
+                1 -> {
+                    generatedPassword += numbers[random.nextInt(numbers.length)]
+                }
+                //Symbol
+                2 -> {
+                    generatedPassword += symbols[random.nextInt(symbols.length)]
+                }
+            }
+        }
+        //Returns the built password to the caller
+        return generatedPassword
     }
 }
