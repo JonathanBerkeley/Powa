@@ -193,6 +193,7 @@ class ViewLoginFragment : Fragment() {
         return true
     }
 
+    //For saving data of edit screen between orientation changes
     override fun onSaveInstanceState(outState: Bundle) {
         with(binding.editTitleText) {
             outState.putString(EDIT_TEXT_KEY, text.toString())
